@@ -15,7 +15,7 @@
     <property name="compile.debug" value="true"/>
     <property name="test.reports" location="testreport"/>
 
-    <property name="sourceversion" value="11"/>
+    <property name="sourceversion" value="1.8"/>
 
     <path id="classpath.base">
         <pathelement location="${build.src}"/>
@@ -49,10 +49,12 @@
                     debug="${compile.debug}" source="${sourceversion}">
                 <compilerarg value="-Xlint:unchecked" />
                 <!--<compilerarg value="-Xlint:deprecation" />-->
+            	<compilerarg line="-encoding UTF-8 "/> 
                 <compileoptions/>
             </javac>
         </sequential>
     </macrodef>
+
 
 
     <!-- Common macro for running junit tests in both the test and runtest targets -->
