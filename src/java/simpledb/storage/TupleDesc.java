@@ -1,6 +1,7 @@
 package simpledb.storage;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -73,17 +74,23 @@ public class TupleDesc implements Serializable {
      * Constructor. Create a new tuple desc with typeAr.length fields with
      * fields of the specified types, with anonymous (unnamed) fields.
      *
-     * @param typeAr array specifying the number of and types of fields in this
+     * @param types array specifying the number of and types of fields in this
      *               TupleDesc. It must contain at least one entry.
      */
-    public TupleDesc(Type[] typeAr) {
+    public TupleDesc(Type[] types) {
         // TODO: some code goes here
-    	tDItems = new TDItem[typeAr.length];
-    	for(int i = 0; i < typeAr.length; i++) {
-    		tDItems[i] = new TDItem(typeAr[i], new String());
+    	tDItems = new TDItem[types.length];
+    	for(int i = 0; i < types.length; i++) {
+    		tDItems[i] = new TDItem(types[i], "");
     	}
     }
-
+    public TupleDesc(ArrayList<TDItem> arrayList) {
+        // TODO: some code goes here
+    	tDItems = new TDItem[arrayList.size()];
+    	for(int i = 0; i < arrayList.size(); i++) {
+    		tDItems[i] = arrayList.get(i);
+    	}
+    }
     /**
      * @return the number of fields in this TupleDesc
      */

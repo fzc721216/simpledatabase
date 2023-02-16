@@ -1,15 +1,20 @@
 package simpledb.common;
 
-import simpledb.storage.DbFile;
-import simpledb.storage.HeapFile;
-import simpledb.storage.TupleDesc;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import simpledb.storage.DbFile;
+import simpledb.storage.HeapFile;
+import simpledb.storage.TupleDesc;
 
 /**
  * The Catalog keeps track of all available tables in the database and their
@@ -21,13 +26,36 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Threadsafe
  */
 public class Catalog {
+	private ConcurrentHashMap<Integer, Table> map;
+	
+	private static class Table {
+		private static final long serialVersionUID = 1L;
+		
+		private DbFile dbFile;
+		private String name;
+		private String pkeyField;
+		
+		public Table(DbFile dbFile, String name, String pkeyField) {
+			super();
+			this.dbFile = dbFile;
+			this.name = name;
+			this.pkeyField = pkeyField;
+		}
 
+		@Override
+		public String toString() {
+			return "Table [dbFile=" + dbFile + ", name=" + name + ", pkeyField=" + pkeyField + "]";
+		}
+		
+		
+	}
     /**
      * Constructor.
      * Creates a new, empty catalog.
      */
     public Catalog() {
         // TODO: some code goes here
+    	map = new ConcurrentHashMap<>();
     }
 
     /**
@@ -42,6 +70,7 @@ public class Catalog {
      */
     public void addTable(DbFile file, String name, String pkeyField) {
         // TODO: some code goes here
+    	map.put(file.getId(), new Table(file, name, pkeyField));
     }
 
     public void addTable(DbFile file, String name) {
@@ -59,7 +88,7 @@ public class Catalog {
     public void addTable(DbFile file) {
         addTable(file, (UUID.randomUUID()).toString());
     }
-
+    
     /**
      * Return the id of the table with a specified name,
      *
@@ -67,9 +96,14 @@ public class Catalog {
      */
     public int getTableId(String name) throws NoSuchElementException {
         // TODO: some code goes here
-        return 0;
+    	for(Map.Entry<Integer, Table> entry : map.entrySet()) {
+    		if (entry.getValue().name.equals(name)) {
+				return (int)entry.getKey();
+			}
+    	}
+        throw new NoSuchElementException();
     }
-
+    
     /**
      * Returns the tuple descriptor (schema) of the specified table
      *
@@ -77,9 +111,12 @@ public class Catalog {
      *                function passed to addTable
      * @throws NoSuchElementException if the table doesn't exist
      */
-    public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
+    public TupleDesc  getTupleDesc(int tableid) throws NoSuchElementException {
         // TODO: some code goes here
-        return null;
+    	if(getDatabaseFile(tableid).getTupleDesc() != null) {
+    		return getDatabaseFile(tableid).getTupleDesc();
+    	}
+        throw new NoSuchElementException();
     }
 
     /**
@@ -91,22 +128,29 @@ public class Catalog {
      */
     public DbFile getDatabaseFile(int tableid) throws NoSuchElementException {
         // TODO: some code goes here
-        return null;
+    	if(map.containsKey(tableid)) {
+    		return map.get(tableid).dbFile;
+    	}
+    	throw new NoSuchElementException();
     }
 
     public String getPrimaryKey(int tableid) {
         // TODO: some code goes here
-        return null;
+        return map.get(tableid).pkeyField;
     }
 
     public Iterator<Integer> tableIdIterator() {
         // TODO: some code goes here
-        return null;
+    	List<Integer> list = new ArrayList<>();
+    	for(Map.Entry<Integer, Table> entry : map.entrySet()) {
+    		list.add(entry.getKey());
+    	}
+        return list.iterator();
     }
 
     public String getTableName(int id) {
         // TODO: some code goes here
-        return null;
+        return map.get(id).name;
     }
 
     /**
@@ -114,6 +158,7 @@ public class Catalog {
      */
     public void clear() {
         // TODO: some code goes here
+    	map.clear();
     }
 
     /**

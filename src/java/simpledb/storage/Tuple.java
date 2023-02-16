@@ -10,7 +10,9 @@ import java.util.Iterator;
  * with the data for each field.
  */
 public class Tuple implements Serializable {
-
+	private TupleDesc tupleDesc;
+	private RecordId recordId;
+	private Field[] fields;
     private static final long serialVersionUID = 1L;
 
     /**
@@ -21,6 +23,8 @@ public class Tuple implements Serializable {
      */
     public Tuple(TupleDesc td) {
         // TODO: some code goes here
+    	tupleDesc = td;
+    	fields = new Field[td.numFields()];
     }
 
     /**
@@ -28,7 +32,7 @@ public class Tuple implements Serializable {
      */
     public TupleDesc getTupleDesc() {
         // TODO: some code goes here
-        return null;
+        return tupleDesc;
     }
 
     /**
@@ -37,7 +41,7 @@ public class Tuple implements Serializable {
      */
     public RecordId getRecordId() {
         // TODO: some code goes here
-        return null;
+        return recordId;
     }
 
     /**
@@ -47,6 +51,7 @@ public class Tuple implements Serializable {
      */
     public void setRecordId(RecordId rid) {
         // TODO: some code goes here
+    	this.recordId = rid;
     }
 
     /**
@@ -57,6 +62,7 @@ public class Tuple implements Serializable {
      */
     public void setField(int i, Field f) {
         // TODO: some code goes here
+    	fields[i] = f;
     }
 
     /**
@@ -65,7 +71,7 @@ public class Tuple implements Serializable {
      */
     public Field getField(int i) {
         // TODO: some code goes here
-        return null;
+        return fields[i];
     }
 
     /**
@@ -78,15 +84,21 @@ public class Tuple implements Serializable {
      */
     public String toString() {
         // TODO: some code goes here
-        throw new UnsupportedOperationException("Implement this");
-    }
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < fields.length; i++) {
+        	sb.append(fields[i])
+        	.append("\t");
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+     }
 
     /**
      * @return An iterator which iterates over all the fields of this tuple
      */
     public Iterator<Field> fields() {
         // TODO: some code goes here
-        return null;
+    	return Arrays.asList(fields).iterator();
     }
 
     /**
@@ -94,5 +106,6 @@ public class Tuple implements Serializable {
      */
     public void resetTupleDesc(TupleDesc td) {
         // TODO: some code goes here
+    	this.tupleDesc = td;
     }
 }
