@@ -1,6 +1,7 @@
 package simpledb.storage;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import simpledb.common.Database;
@@ -22,23 +23,21 @@ import simpledb.transaction.TransactionId;
  */
 public class BufferPool {
 	private ConcurrentHashMap<Integer, Page> map;
-	
+	private ConcurrentHashMap<Integer, Permissions> pagePermissions;
+	private LinkedList<Integer> LRU;
 	/**
 	 * Bytes per page, including header.
 	 */
 	private static final int DEFAULT_PAGE_SIZE = 4096;
-
 	private static int pageSize = DEFAULT_PAGE_SIZE;
-
 	/**
 	 * Default number of pages passed to the constructor. This is used by other
 	 * classes. BufferPool should use the numPages argument to the constructor
 	 * instead.
 	 */
 	public static final int DEFAULT_PAGES = 50;
-
 	private static int numPages = DEFAULT_PAGES;
-
+	private Page toWritePage;
 	/**
 	 * Creates a BufferPool that caches up to numPages pages.
 	 *
@@ -48,6 +47,8 @@ public class BufferPool {
 		// TODO: some code goes here
 		BufferPool.numPages = numPages;
 		map = new ConcurrentHashMap<>();
+		pagePermissions = new ConcurrentHashMap<>();
+		LRU = new LinkedList<>();
 	}
 
 	public static int getNumPages() {
@@ -67,7 +68,9 @@ public class BufferPool {
 	public static void resetPageSize() {
 		BufferPool.pageSize = DEFAULT_PAGE_SIZE;
 	}
-
+	public int nowPages() {
+		return map.size();
+	}
 	/**
 	 * Retrieve the specified page with the associated permissions. Will acquire a
 	 * lock and may block if that lock is held by another transaction.
@@ -83,14 +86,27 @@ public class BufferPool {
 	 */
 	public Page getPage(TransactionId tid, PageId pid, Permissions perm)
 			throws TransactionAbortedException, DbException {
-		// TODO: some code goes here
-		Page page = map.get(pid.hashCode());
+		int hash = pid.hashCode();
+		Page page = map.get(hash);
 		if(page == null) {
 			DbFile dbFile = Database.getCatalog().getDatabaseFile(pid.getTableId());
 			page = dbFile.readPage(pid);
+			if(numPages == nowPages()) {
+				evictPage();				
+			}
 			map.put(pid.hashCode(), page);
+			pagePermissions.put(pid.hashCode(), perm);
+			LRU.add(pid.hashCode());
 		}
-		return map.get(pid.hashCode());
+		int index = 0;
+		for(int n : LRU) {
+			if(n == hash) {
+				LRU.remove(index);
+				LRU.add(n);
+			}
+			index++;
+		}
+		return map.get(hash);
 	}
 
 	/**
@@ -154,8 +170,7 @@ public class BufferPool {
 	 */
 	public void insertTuple(TransactionId tid, int tableId, Tuple t)
 			throws DbException, IOException, TransactionAbortedException {
-		// TODO: some code goes here
-		// not necessary for lab1
+		
 	}
 
 	/**
@@ -205,8 +220,8 @@ public class BufferPool {
 	 * @param pid an ID indicating the page to flush
 	 */
 	private synchronized void flushPage(PageId pid) throws IOException {
-		// TODO: some code goes here
-		// not necessary for lab1
+		DbFile heapFile = (HeapFile)Database.getCatalog().getDatabaseFile(pid.getTableId());
+		heapFile.writePage(toWritePage);
 	}
 
 	/**
@@ -224,6 +239,16 @@ public class BufferPool {
 	private synchronized void evictPage() throws DbException {
 		// TODO: some code goes here
 		// not necessary for lab1
+		int pIdHash = LRU.removeFirst();
+		toWritePage = map.get(pIdHash);
+		PageId pId = toWritePage.getId();	
+		map.remove(pIdHash);
+		pagePermissions.remove(pIdHash);
+		try {
+			flushPage(pId);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

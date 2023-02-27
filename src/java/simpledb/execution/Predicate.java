@@ -1,9 +1,9 @@
 package simpledb.execution;
 
+import java.io.Serializable;
+
 import simpledb.storage.Field;
 import simpledb.storage.Tuple;
-
-import java.io.Serializable;
 
 /**
  * Predicate compares tuples to a specified Field value.
@@ -11,7 +11,9 @@ import java.io.Serializable;
 public class Predicate implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    private final int field;
+    private final Field operand;
+    private final Op op;
     /**
      * Constants used for return codes in Field.compare
      */
@@ -57,6 +59,9 @@ public class Predicate implements Serializable {
      */
     public Predicate(int field, Op op, Field operand) {
         // TODO: some code goes here
+    	this.op = op;
+    	this.field = field;
+    	this.operand = operand;
     }
 
     /**
@@ -64,7 +69,7 @@ public class Predicate implements Serializable {
      */
     public int getField() {
         // TODO: some code goes here
-        return -1;
+        return field;
     }
 
     /**
@@ -72,7 +77,7 @@ public class Predicate implements Serializable {
      */
     public Op getOp() {
         // TODO: some code goes here
-        return null;
+        return op;
     }
 
     /**
@@ -80,7 +85,7 @@ public class Predicate implements Serializable {
      */
     public Field getOperand() {
         // TODO: some code goes here
-        return null;
+        return operand;
     }
 
     /**
@@ -94,7 +99,8 @@ public class Predicate implements Serializable {
      */
     public boolean filter(Tuple t) {
         // TODO: some code goes here
-        return false;
+    	Field field = t.getField(this.field);
+    	return field.compare(this.op, this.operand);
     }
 
     /**
@@ -103,6 +109,8 @@ public class Predicate implements Serializable {
      */
     public String toString() {
         // TODO: some code goes here
-        return "";
+        return "f "+ "= " + this.field + " " + 
+        		"op " + "= " + this.op + " " + 
+        		"operand " + "= " + this.operand;
     }
 }

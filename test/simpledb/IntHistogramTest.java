@@ -1,7 +1,7 @@
 package simpledb;
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
 import simpledb.execution.Predicate.Op;
 import simpledb.optimizer.IntHistogram;

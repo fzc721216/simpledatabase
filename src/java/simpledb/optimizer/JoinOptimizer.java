@@ -1,14 +1,29 @@
 package simpledb.optimizer;
 
-import simpledb.ParsingException;
-import simpledb.common.Database;
-import simpledb.execution.*;
-import simpledb.storage.TupleDesc;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import java.util.*;
+
+import simpledb.ParsingException;
+import simpledb.common.Database;
+import simpledb.execution.Join;
+import simpledb.execution.JoinPredicate;
+import simpledb.execution.OpIterator;
+import simpledb.execution.PlanCache;
+import simpledb.execution.Predicate;
 
 /**
  * The JoinOptimizer class is responsible for ordering a series of joins
@@ -198,9 +213,7 @@ public class JoinOptimizer {
             Map<String, TableStats> stats,
             Map<String, Double> filterSelectivities, boolean explain)
             throws ParsingException {
-        // Not necessary for labs 1 and 2.
-
-        // TODO: some code goes here
+    	// TODO: some code goes here
         return joins;
     }
 

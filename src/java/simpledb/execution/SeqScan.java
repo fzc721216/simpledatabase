@@ -86,7 +86,6 @@ public class SeqScan implements OpIterator {
 
     public void open() throws DbException, TransactionAbortedException {
         // TODO: some code goes here
-
         iterator.open();
     }
 
